@@ -46,4 +46,23 @@ describe('FilterPipe', () => {
     itemsReturned = pipe.transform(items, 'slug', 'slug')
     expect(itemsReturned).toEqual([items[0]])
   })
+
+  it('should filter matchingmodel items by normalized independent terms', () => {
+    const pipe = new FilterPipe()
+    const items: MatchingModel[] = [
+      {
+        id: 1,
+        name: 'Financ\u00e9 Taxes 2026',
+        slug: 'finance-taxes',
+      },
+      {
+        id: 2,
+        name: 'Receipt Archive 2026',
+        slug: 'receipt-archive',
+      },
+    ]
+
+    expect(pipe.transform(items, 'finance 26')).toEqual([items[0]])
+    expect(pipe.transform(items, 'finance receipt')).toEqual([])
+  })
 })

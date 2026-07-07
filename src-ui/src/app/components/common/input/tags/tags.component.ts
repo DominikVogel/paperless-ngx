@@ -61,12 +61,15 @@ export class TagsComponent implements OnInit, ControlValueAccessor {
   writeValue(newValue: number[]): void {
     this.value = newValue
   }
+
   registerOnChange(fn: any): void {
     this.onChange = fn
   }
+
   registerOnTouched(fn: any): void {
     this.onTouched = fn
   }
+
   setDisabledState?(isDisabled: boolean): void {
     this.disabled = isDisabled
   }
@@ -74,6 +77,7 @@ export class TagsComponent implements OnInit, ControlValueAccessor {
   ngOnInit(): void {
     this.tagService.listAll().subscribe((result) => {
       this.tags = result.results
+      this.tagSearchTextCache.clear()
     })
   }
 
@@ -113,15 +117,12 @@ export class TagsComponent implements OnInit, ControlValueAccessor {
 
   tags: Tag[] = []
 
+  private readonly tagSearchTextCache = new Map<number, string>()
+
   public createTagRef: (name) => void
 
   public searchFn = (term: string, tag: Tag): boolean =>
-    matchesSearchText(
-      [this.getParentChain(tag?.id).map((parent) => parent.name), tag?.name]
-        .flat()
-        .join(' '),
-      term
-    )
+    matchesSearchText(this.getTagSearchText(tag), term)
 
   getTag(id: number) {
     if (this.tags) {
@@ -152,8 +153,8 @@ export class TagsComponent implements OnInit, ControlValueAccessor {
 
   private removeChildren(tagIDs: number[], tag: Tag) {
     if (tag.children?.length) {
-      const childIDs = tag.children.map((child) => child.id)
-      tagIDs = tagIDs.filter((id) => !childIDs.includes(id))
+      const childIDs = new Set(tag.children.map((child) => child.id))
+      tagIDs = tagIDs.filter((id) => !childIDs.has(id))
       for (const child of tag.children) {
         tagIDs = this.removeChildren(tagIDs, child)
       }
@@ -188,6 +189,7 @@ export class TagsComponent implements OnInit, ControlValueAccessor {
         tap((newTag) => {
           this.tagService.listAll().subscribe((tags) => {
             this.tags = tags.results
+            this.tagSearchTextCache.clear()
             add && this.addTag(newTag.id)
           })
         })
@@ -237,5 +239,23 @@ export class TagsComponent implements OnInit, ControlValueAccessor {
       current = parent
     }
     return chain
+  }
+
+  private getTagSearchText(tag: Tag): string {
+    if (!tag) {
+      return ''
+    }
+
+    const cachedSearchText = this.tagSearchTextCache.get(tag.id)
+    if (cachedSearchText !== undefined) {
+      return cachedSearchText
+    }
+
+    const searchText = [
+      ...this.getParentChain(tag.id).map((parent) => parent.name),
+      tag.name,
+    ].join(' ')
+    this.tagSearchTextCache.set(tag.id, searchText)
+    return searchText
   }
 }

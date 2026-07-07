@@ -8,8 +8,39 @@ export type SearchTextValue =
   | null
   | undefined
 
+const normalizedStringCache = new Map<string, string>()
+const searchTermsCache = new Map<string, string[]>()
+
+function normalizeString(value: string): string {
+  const cachedValue = normalizedStringCache.get(value)
+  if (cachedValue !== undefined) {
+    return cachedValue
+  }
+
+  const normalizedValue = normalizeSync(value).toLocaleLowerCase()
+  normalizedStringCache.set(value, normalizedValue)
+  return normalizedValue
+}
+
 export function normalizeSearchText(value: SearchTextValue): string {
-  return normalizeSync(String(value ?? '')).toLocaleLowerCase()
+  return normalizeString(String(value ?? ''))
+}
+
+function getSearchTerms(searchText: SearchTextValue): string[] {
+  const normalizedSearchText = normalizeSearchText(searchText).trim()
+
+  if (!normalizedSearchText) {
+    return []
+  }
+
+  const cachedTerms = searchTermsCache.get(normalizedSearchText)
+  if (cachedTerms !== undefined) {
+    return cachedTerms
+  }
+
+  const searchTerms = normalizedSearchText.split(/\s+/)
+  searchTermsCache.set(normalizedSearchText, searchTerms)
+  return searchTerms
 }
 
 export function matchesSearchText(
@@ -17,7 +48,7 @@ export function matchesSearchText(
   searchText: SearchTextValue
 ): boolean {
   const normalizedValue = normalizeSearchText(value)
-  const searchTerms = normalizeSearchText(searchText).trim().split(/\s+/)
+  const searchTerms = getSearchTerms(searchText)
 
   return searchTerms.every((term) => normalizedValue.includes(term))
 }
