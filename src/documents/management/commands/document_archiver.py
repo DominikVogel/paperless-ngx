@@ -54,8 +54,12 @@ class Command(PaperlessCommand):
         else:
             documents = Document.objects.all()
 
+        documents = documents.only("id", "archive_filename")
+
         document_ids = [
-            doc.id for doc in documents if overwrite or not doc.has_archive_version
+            doc.id
+            for doc in documents.iterator(chunk_size=2000)
+            if overwrite or not doc.has_archive_version
         ]
 
         try:
