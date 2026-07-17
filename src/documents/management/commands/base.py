@@ -341,6 +341,35 @@ class PaperlessCommand(RichCommand):
 
         return None
 
+    def _resolve_iterable(
+        self,
+        iterable: Iterable[T],
+        *,
+        chunk_size: int = 2000,
+    ) -> Iterable[T]:
+        """
+        Convert a raw Django QuerySet into a server-side iterator.
+
+        Plain iteration over a QuerySet (`for x in queryset`) loads every
+        row into the queryset's result cache before yielding the first
+        item, defeating the purpose of streaming via track()/
+        track_with_stats(). Wrapping it in .iterator() streams rows from
+        the database instead. Non-QuerySet iterables (generators, lists,
+        already-wrapped iterators) are returned unchanged.
+
+        Args:
+            iterable: The items to iterate over.
+            chunk_size: Row batch size passed to QuerySet.iterator().
+
+        Returns:
+            A QuerySet.iterator() if given a QuerySet, else the original
+            iterable.
+        """
+        if isinstance(iterable, QuerySet):
+            return iterable.iterator(chunk_size=chunk_size)
+
+        return iterable
+
     def track(
         self,
         iterable: Iterable[T],
@@ -367,12 +396,13 @@ class PaperlessCommand(RichCommand):
             for doc in self.track(documents, description="Renaming..."):
                 process(doc)
         """
+        if total is None:
+            total = self._get_iterable_length(iterable)
+        iterable = self._resolve_iterable(iterable)
+
         if self.no_progress_bar:
             yield from iterable
             return
-
-        if total is None:
-            total = self._get_iterable_length(iterable)
 
         with self._create_progress(description) as progress:
             task_id = progress.add_task(description, total=total)
@@ -438,12 +468,13 @@ class PaperlessCommand(RichCommand):
                 except Exception:
                     stats.failed += 1
         """
+        if total is None:
+            total = self._get_iterable_length(iterable)
+        iterable = self._resolve_iterable(iterable)
+
         if self.no_progress_bar:
             yield from iterable
             return
-
-        if total is None:
-            total = self._get_iterable_length(iterable)
 
         stderr_console = Console(stderr=True)
 

@@ -127,12 +127,19 @@ def mock_queryset():
         def __init__(self, items: list):
             self._items = items
             self.count_called = False
+            self.iterator_chunk_size: int | None = None
 
         def count(self) -> int:
             self.count_called = True
             return len(self._items)
 
         def __iter__(self):
+            raise AssertionError(
+                "querysets should be streamed via .iterator(), not iterated directly",
+            )
+
+        def iterator(self, chunk_size: int | None = None):
+            self.iterator_chunk_size = chunk_size
             return iter(self._items)
 
         def __len__(self):
@@ -404,6 +411,21 @@ class TestTrack:
         assert result == [1, 2, 3]
         spy.assert_called_once_with(queryset)
         assert queryset.count_called is True
+
+    def test_streams_querysets_via_iterator(
+        self,
+        simple_command: SimpleCommand,
+        mock_queryset,
+    ) -> None:
+        """Verify track() streams querysets via .iterator() rather than
+        materializing the full result cache with a plain for-loop."""
+        simple_command.no_progress_bar = False
+        queryset = mock_queryset([1, 2, 3])
+
+        result = list(simple_command.track(queryset))
+
+        assert result == [1, 2, 3]
+        assert queryset.iterator_chunk_size == 2000
 
 
 @pytest.mark.management
