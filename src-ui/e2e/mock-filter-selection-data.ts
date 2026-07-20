@@ -22,6 +22,14 @@ const EMPTY_SELECTION_DATA = {
  */
 export async function mockFilterSelectionData(page: Page) {
   await page.route('**/api/documents/filter_selection_data/**', (route) =>
-    route.fulfill({ json: EMPTY_SELECTION_DATA })
+    route.fulfill({
+      json: EMPTY_SELECTION_DATA,
+      // The app calls the (cross-origin, from the e2e app's perspective)
+      // backend at http://localhost:8000 while served from :4200, so a
+      // fulfilled response needs the same CORS header the real backend
+      // sends (and that recorded HAR responses already carry) or the
+      // browser rejects it as a cross-origin failure.
+      headers: { 'Access-Control-Allow-Origin': 'http://localhost:4200' },
+    })
   )
 }
