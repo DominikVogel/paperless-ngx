@@ -137,6 +137,16 @@ describe('DocumentListViewService', () => {
 
   afterEach(() => {
     documentListViewService.cancelPending()
+    // A filter_selection_data request now fires concurrently with every
+    // non-search reload(), independent of whether the test cares about or
+    // flushes the primary list response. Drain any that a test didn't
+    // explicitly claim via flushSelectionDataRequest, so unrelated tests
+    // don't have to know about this follow-up request to pass verify().
+    httpTestingController.match(
+      (request) =>
+        request.url ===
+        `${environment.apiBaseUrl}documents/filter_selection_data/`
+    )
     httpTestingController.verify()
     sessionStorage.clear()
     localStorage.clear()
@@ -434,7 +444,10 @@ describe('DocumentListViewService', () => {
       count: 3,
       results: documents.slice(0, 3),
     })
-    flushSelectionDataRequest(httpTestingController)
+    // two reload()s ran above (setFilterRules, then pageSize), each firing
+    // its own concurrent filter_selection_data request with an identical
+    // (unfiltered) URL; this test doesn't assert on selectionData, so let
+    // afterEach's drain step clean both up rather than disambiguating here.
     expect(documentListViewService.hasNext(documents[0].id)).toBeTruthy()
     expect(documentListViewService.hasPrevious(documents[0].id)).toBeFalsy()
     documentListViewService.getNext(documents[0].id).subscribe((docId) => {

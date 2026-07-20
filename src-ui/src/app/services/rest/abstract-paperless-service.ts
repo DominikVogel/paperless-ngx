@@ -41,6 +41,24 @@ export abstract class AbstractPaperlessService<T extends ObjectWithId> {
     }
   }
 
+  /**
+   * Merges a plain params object into an HttpParams instance, skipping
+   * null/undefined values so they aren't serialized as literal "null" /
+   * "undefined" query string entries.
+   */
+  protected withParams(
+    params,
+    base: HttpParams = new HttpParams()
+  ): HttpParams {
+    let httpParams = base
+    for (let key in params) {
+      if (params[key] != null) {
+        httpParams = httpParams.set(key, params[key])
+      }
+    }
+    return httpParams
+  }
+
   list(
     page?: number,
     pageSize?: number,
@@ -60,11 +78,7 @@ export abstract class AbstractPaperlessService<T extends ObjectWithId> {
     if (ordering) {
       httpParams = httpParams.set('ordering', ordering)
     }
-    for (let extraParamKey in extraParams) {
-      if (extraParams[extraParamKey] != null) {
-        httpParams = httpParams.set(extraParamKey, extraParams[extraParamKey])
-      }
-    }
+    httpParams = this.withParams(extraParams, httpParams)
     return this.http
       .get<Results<T>>(this.getResourceUrl(), {
         params: httpParams,
@@ -113,11 +127,7 @@ export abstract class AbstractPaperlessService<T extends ObjectWithId> {
     httpParams = httpParams.set('id__in', ids.join(','))
     httpParams = httpParams.set('ordering', '-id')
     httpParams = httpParams.set('page_size', 1000)
-    for (let extraParamKey in extraParams) {
-      if (extraParams[extraParamKey] != null) {
-        httpParams = httpParams.set(extraParamKey, extraParams[extraParamKey])
-      }
-    }
+    httpParams = this.withParams(extraParams, httpParams)
     return this.http
       .get<Results<T>>(this.getResourceUrl(), {
         params: httpParams,

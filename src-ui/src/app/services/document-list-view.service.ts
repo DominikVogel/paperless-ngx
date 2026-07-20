@@ -314,6 +314,22 @@ export class DocumentListViewService {
     }
   }
 
+  private loadFilterSelectionData(filterRules: FilterRule[]) {
+    this.documentService
+      .getFilterSelectionData(filterRules)
+      .pipe(takeUntil(this.unsubscribeNotifier))
+      .subscribe({
+        next: (selectionData) => {
+          this.selectionData = selectionData
+          this.markChanged()
+        },
+        error: () => {
+          this.selectionData = null
+          this.markChanged()
+        },
+      })
+  }
+
   reload(onFinish?, updateQueryParams: boolean = true) {
     this.cancelPending()
     this.isReloading = true
@@ -323,10 +339,14 @@ export class DocumentListViewService {
     // Full-text search results are already narrowed by the search backend, so
     // computing selection data inline there is cheap. A plain (unfiltered or
     // ORM-filtered) browse can span the entire document set, so its selection
-    // data is fetched separately below instead of blocking the list response.
+    // data is fetched separately -- concurrently with the list itself, rather
+    // than blocking or waiting on it.
     const isFullTextSearch = isFullTextFilterRule(
       activeListViewState.filterRules
     )
+    if (!isFullTextSearch) {
+      this.loadFilterSelectionData(activeListViewState.filterRules)
+    }
     this.documentService
       .listFiltered(
         activeListViewState.currentPage,
@@ -342,30 +362,16 @@ export class DocumentListViewService {
       .pipe(takeUntil(this.unsubscribeNotifier))
       .subscribe({
         next: (result) => {
-          const resultWithSelectionData = result as DocumentResults
           this.initialized = true
           this.isReloading = false
           activeListViewState.collectionSize = result.count
           activeListViewState.documents = result.results
-          this.selectionData = resultWithSelectionData.selection_data ?? null
+          if (isFullTextSearch) {
+            this.selectionData =
+              (result as DocumentResults).selection_data ?? null
+          }
           this.syncSelectedToCurrentPage()
           this.markChanged()
-
-          if (!isFullTextSearch) {
-            this.documentService
-              .getFilterSelectionData(activeListViewState.filterRules)
-              .pipe(takeUntil(this.unsubscribeNotifier))
-              .subscribe({
-                next: (selectionData) => {
-                  this.selectionData = selectionData
-                  this.markChanged()
-                },
-                error: () => {
-                  this.selectionData = null
-                  this.markChanged()
-                },
-              })
-          }
 
           if (updateQueryParams && !this._activeSavedViewId) {
             let base = ['/documents']
@@ -402,6 +408,9 @@ export class DocumentListViewService {
             // e.g. field was deleted
             this.sortField = 'created'
           } else {
+            // cancel the concurrently-fired selection-data request too, so it
+            // can't resolve afterward and clobber this reset with stale data
+            this.cancelPending()
             this.selectionData = null
             let errorMessage
             if (

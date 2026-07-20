@@ -1034,7 +1034,11 @@ class DocumentViewSet(
             ],
         }
 
-    def get_queryset(self):
+    def _base_document_queryset(self):
+        # Root documents only, with the annotations that filter_backends rely
+        # on (effective_content for SearchFilter, num_notes for ordering) --
+        # but no select_related/prefetch_related, since those only matter for
+        # serializing documents, not for filtering, ordering, or aggregating.
         latest_version_content = Subquery(
             Document.objects.filter(root_document=OuterRef("pk"))
             .order_by("-id")
@@ -1046,6 +1050,11 @@ class DocumentViewSet(
             .order_by("-created", "-id")
             .annotate(effective_content=Coalesce(latest_version_content, F("content")))
             .annotate(num_notes=Count("notes"))
+        )
+
+    def get_queryset(self):
+        return (
+            self._base_document_queryset()
             .select_related("correspondent", "storage_path", "document_type", "owner")
             .prefetch_related(
                 Prefetch(
@@ -1197,7 +1206,7 @@ class DocumentViewSet(
     )
     @action(detail=False, methods=["get"], url_path="filter_selection_data")
     def filter_selection_data(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
+        queryset = self.filter_queryset(self._base_document_queryset())
         return Response(self._get_selection_data_for_queryset(queryset))
 
     def destroy(self, request, *args, **kwargs):

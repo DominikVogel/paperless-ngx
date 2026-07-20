@@ -191,6 +191,14 @@ describe('BulkEditorComponent', () => {
   })
 
   afterEach(async () => {
+    // A filter_selection_data request now fires concurrently with every
+    // non-search reload(), independent of whether a given test flushes or
+    // even inspects the primary list response. Drain any left unclaimed.
+    httpTestingController.match(
+      (request) =>
+        request.url ===
+        `${environment.apiBaseUrl}documents/filter_selection_data/`
+    )
     httpTestingController.verify()
   })
 

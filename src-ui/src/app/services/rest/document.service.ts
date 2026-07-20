@@ -1,4 +1,3 @@
-import { HttpParams } from '@angular/common/http'
 import { Injectable, inject } from '@angular/core'
 import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
@@ -400,16 +399,9 @@ export class DocumentService extends AbstractPaperlessService<Document> {
   }
 
   getFilterSelectionData(filterRules: FilterRule[]): Observable<SelectionData> {
-    let httpParams = new HttpParams()
-    const filterParams = queryParamsFromFilterRules(filterRules)
-    for (let key in filterParams) {
-      if (filterParams[key] != null) {
-        httpParams = httpParams.set(key, filterParams[key])
-      }
-    }
     return this.http.get<SelectionData>(
       this.getResourceUrl(null, 'filter_selection_data'),
-      { params: httpParams }
+      { params: this.withParams(queryParamsFromFilterRules(filterRules)) }
     )
   }
 
