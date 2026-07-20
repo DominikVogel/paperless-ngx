@@ -1,5 +1,10 @@
 import { expect, test } from '@playwright/test'
 import path from 'node:path'
+import { mockFilterSelectionData } from '../mock-filter-selection-data'
+
+test.beforeEach(async ({ page }) => {
+  await mockFilterSelectionData(page)
+})
 
 const REQUESTS_HAR = path.join(__dirname, 'requests/api-global-permissions.har')
 
