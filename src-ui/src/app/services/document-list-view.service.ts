@@ -320,6 +320,13 @@ export class DocumentListViewService {
     this.error = null
     this.markChanged()
     let activeListViewState = this.activeListViewState
+    // Full-text search results are already narrowed by the search backend, so
+    // computing selection data inline there is cheap. A plain (unfiltered or
+    // ORM-filtered) browse can span the entire document set, so its selection
+    // data is fetched separately below instead of blocking the list response.
+    const isFullTextSearch = isFullTextFilterRule(
+      activeListViewState.filterRules
+    )
     this.documentService
       .listFiltered(
         activeListViewState.currentPage,
@@ -327,7 +334,10 @@ export class DocumentListViewService {
         activeListViewState.sortField,
         activeListViewState.sortReverse,
         activeListViewState.filterRules,
-        { truncate_content: true, include_selection_data: true }
+        {
+          truncate_content: true,
+          include_selection_data: isFullTextSearch,
+        }
       )
       .pipe(takeUntil(this.unsubscribeNotifier))
       .subscribe({
@@ -340,6 +350,22 @@ export class DocumentListViewService {
           this.selectionData = resultWithSelectionData.selection_data ?? null
           this.syncSelectedToCurrentPage()
           this.markChanged()
+
+          if (!isFullTextSearch) {
+            this.documentService
+              .getFilterSelectionData(activeListViewState.filterRules)
+              .pipe(takeUntil(this.unsubscribeNotifier))
+              .subscribe({
+                next: (selectionData) => {
+                  this.selectionData = selectionData
+                  this.markChanged()
+                },
+                error: () => {
+                  this.selectionData = null
+                  this.markChanged()
+                },
+              })
+          }
 
           if (updateQueryParams && !this._activeSavedViewId) {
             let base = ['/documents']

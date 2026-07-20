@@ -1241,7 +1241,7 @@ class TestDocumentApi(DirectoriesMixin, ConsumeTaskMixin, APITestCase):
             ],
         )
 
-    def test_list_with_include_selection_data(self) -> None:
+    def test_selection_data_endpoint(self) -> None:
         correspondent = Correspondent.objects.create(name="c1")
         doc_type = DocumentType.objects.create(name="dt1")
         storage_path = StoragePath.objects.create(name="sp1")
@@ -1259,30 +1259,28 @@ class TestDocumentApi(DirectoriesMixin, ConsumeTaskMixin, APITestCase):
         non_matching_doc.tags.add(Tag.objects.create(name="other"))
 
         response = self.client.get(
-            f"/api/documents/?tags__id__in={tag.id}&include_selection_data=true",
+            f"/api/documents/filter_selection_data/?tags__id__in={tag.id}",
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn("selection_data", response.data)
+        self.assertNotIn("results", response.data)
 
         selected_correspondent = next(
             item
-            for item in response.data["selection_data"]["selected_correspondents"]
+            for item in response.data["selected_correspondents"]
             if item["id"] == correspondent.id
         )
         selected_tag = next(
-            item
-            for item in response.data["selection_data"]["selected_tags"]
-            if item["id"] == tag.id
+            item for item in response.data["selected_tags"] if item["id"] == tag.id
         )
         selected_type = next(
             item
-            for item in response.data["selection_data"]["selected_document_types"]
+            for item in response.data["selected_document_types"]
             if item["id"] == doc_type.id
         )
         selected_storage_path = next(
             item
-            for item in response.data["selection_data"]["selected_storage_paths"]
+            for item in response.data["selected_storage_paths"]
             if item["id"] == storage_path.id
         )
 
@@ -1290,6 +1288,17 @@ class TestDocumentApi(DirectoriesMixin, ConsumeTaskMixin, APITestCase):
         self.assertEqual(selected_tag["document_count"], 1)
         self.assertEqual(selected_type["document_count"], 1)
         self.assertEqual(selected_storage_path["document_count"], 1)
+
+    def test_list_no_longer_supports_include_selection_data(self) -> None:
+        """
+        include_selection_data was never part of a stable release (beta-only,
+        introduced and removed within the 3.0.0-beta cycle) -- the plain list
+        endpoint should just ignore the param now rather than compute it inline.
+        """
+        response = self.client.get("/api/documents/?include_selection_data=true")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotIn("selection_data", response.data)
 
     def test_statistics(self) -> None:
         doc1 = Document.objects.create(

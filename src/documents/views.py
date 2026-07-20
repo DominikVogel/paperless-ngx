@@ -1184,24 +1184,21 @@ class DocumentViewSet(
 
         return response
 
-    def list(self, request, *args, **kwargs):
-        if not get_boolean(
-            str(request.query_params.get("include_selection_data", "false")),
-        ):
-            return super().list(request, *args, **kwargs)
-
+    @extend_schema(
+        operation_id="documents_filter_selection_data",
+        description=(
+            "Returns per-tag/correspondent/document-type/storage-path/custom-field "
+            "document counts for the current filter, without paginating or "
+            "serializing the matching documents themselves. Split out from the "
+            "plain document list so that browsing the (potentially huge) unfiltered "
+            "document list doesn't pay for this aggregation on every request."
+        ),
+        responses={200: inline_serializer(name="SelectionData", fields={})},
+    )
+    @action(detail=False, methods=["get"], url_path="filter_selection_data")
+    def filter_selection_data(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-        selection_data = self._get_selection_data_for_queryset(queryset)
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            response = self.get_paginated_response(serializer.data)
-            response.data["selection_data"] = selection_data
-            return response
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response({"results": serializer.data, "selection_data": selection_data})
+        return Response(self._get_selection_data_for_queryset(queryset))
 
     def destroy(self, request, *args, **kwargs):
         from documents.search import get_backend
