@@ -2,10 +2,6 @@ import { expect, test } from '@playwright/test'
 import path from 'node:path'
 import { mockFilterSelectionData } from '../mock-filter-selection-data'
 
-test.beforeEach(async ({ page }) => {
-  await mockFilterSelectionData(page)
-})
-
 const REQUESTS_HAR1 = path.join(__dirname, 'requests/api-document-list1.har')
 const REQUESTS_HAR2 = path.join(__dirname, 'requests/api-document-list2.har')
 const REQUESTS_HAR3 = path.join(__dirname, 'requests/api-document-list3.har')
@@ -15,6 +11,7 @@ const REQUESTS_HAR6 = path.join(__dirname, 'requests/api-document-list6.har')
 
 test('basic filtering', async ({ page }) => {
   await page.routeFromHAR(REQUESTS_HAR1, { notFound: 'fallback' })
+  await mockFilterSelectionData(page)
   await page.goto('/documents')
   await page.getByRole('button', { name: 'Tags' }).click()
   await page.getByRole('menuitem', { name: 'Inbox' }).click()
@@ -50,6 +47,7 @@ test('basic filtering', async ({ page }) => {
 
 test('text filtering', async ({ page }) => {
   await page.routeFromHAR(REQUESTS_HAR2, { notFound: 'fallback' })
+  await mockFilterSelectionData(page)
   await page.goto('/documents')
   await page.getByRole('main').getByRole('combobox').click()
   await page.getByRole('main').getByRole('combobox').fill('test')
@@ -86,6 +84,7 @@ test('text filtering', async ({ page }) => {
 
 test('date filtering', async ({ page }) => {
   await page.routeFromHAR(REQUESTS_HAR3, { notFound: 'fallback' })
+  await mockFilterSelectionData(page)
   await page.goto('/documents')
   await page.getByRole('button', { name: 'Dates' }).click()
   await page.locator('.ng-arrow-wrapper').first().click()
@@ -108,6 +107,7 @@ test('date filtering', async ({ page }) => {
 
 test('sorting', async ({ page }) => {
   await page.routeFromHAR(REQUESTS_HAR4, { notFound: 'fallback' })
+  await mockFilterSelectionData(page)
   await page.goto('/documents')
   await page.getByRole('button', { name: 'Sort' }).click()
   await page.getByRole('button', { name: 'ASN' }).click()
@@ -146,6 +146,7 @@ test('sorting', async ({ page }) => {
 
 test('change views', async ({ page }) => {
   await page.routeFromHAR(REQUESTS_HAR5, { notFound: 'fallback' })
+  await mockFilterSelectionData(page)
   await page.goto('/documents')
   await page.locator('.btn-group > label').first().click()
   await expect(page.locator('pngx-document-list table')).toBeVisible()
@@ -157,6 +158,7 @@ test('change views', async ({ page }) => {
 
 test('bulk edit', async ({ page }) => {
   await page.routeFromHAR(REQUESTS_HAR6, { notFound: 'fallback' })
+  await mockFilterSelectionData(page)
   await page.goto('/documents')
 
   await page.locator('pngx-document-card-small').nth(0).click()

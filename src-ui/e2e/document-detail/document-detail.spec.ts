@@ -2,10 +2,6 @@ import { expect, test } from '@playwright/test'
 import path from 'node:path'
 import { mockFilterSelectionData } from '../mock-filter-selection-data'
 
-test.beforeEach(async ({ page }) => {
-  await mockFilterSelectionData(page)
-})
-
 const REQUESTS_HAR = path.join(__dirname, 'requests/api-document-detail.har')
 const REQUESTS_HAR2 = path.join(__dirname, 'requests/api-document-detail2.har')
 
@@ -13,6 +9,7 @@ test('should activate / deactivate save button when changes are saved', async ({
   page,
 }) => {
   await page.routeFromHAR(REQUESTS_HAR, { notFound: 'fallback' })
+  await mockFilterSelectionData(page)
   await page.goto('/documents/175/')
   await page.waitForSelector('pngx-document-detail pngx-input-text:first-child')
   await expect(page.getByTitle('Storage path', { exact: true })).toHaveText(
@@ -25,6 +22,7 @@ test('should activate / deactivate save button when changes are saved', async ({
 
 test('should warn on unsaved changes', async ({ page }) => {
   await page.routeFromHAR(REQUESTS_HAR, { notFound: 'fallback' })
+  await mockFilterSelectionData(page)
   await page.goto('/documents/175/')
   await expect(page.getByTitle('Correspondent', { exact: true })).toHaveText(
     /\w+/
@@ -44,6 +42,7 @@ test('should warn on unsaved changes', async ({ page }) => {
 
 test('should support tab direct navigation', async ({ page }) => {
   await page.routeFromHAR(REQUESTS_HAR, { notFound: 'fallback' })
+  await mockFilterSelectionData(page)
   await page.goto('/documents/175/details')
   await expect(page.getByRole('tab', { name: 'Details' })).toHaveAttribute(
     'aria-selected',
@@ -73,6 +72,7 @@ test('should support tab direct navigation', async ({ page }) => {
 
 test('should show a mobile preview', async ({ page }) => {
   await page.routeFromHAR(REQUESTS_HAR, { notFound: 'fallback' })
+  await mockFilterSelectionData(page)
   await page.goto('/documents/175/')
   await page.setViewportSize({ width: 400, height: 1000 })
   await expect(page.getByRole('tab', { name: 'Preview' })).toBeVisible()
@@ -82,6 +82,7 @@ test('should show a mobile preview', async ({ page }) => {
 
 test('should show a list of notes', async ({ page }) => {
   await page.routeFromHAR(REQUESTS_HAR, { notFound: 'fallback' })
+  await mockFilterSelectionData(page)
   await page.goto('/documents/175/notes')
   await expect(page.locator('pngx-document-notes')).toBeVisible()
   await expect(
@@ -94,6 +95,7 @@ test('should show a list of notes', async ({ page }) => {
 
 test('should support quick filters', async ({ page }) => {
   await page.routeFromHAR(REQUESTS_HAR2, { notFound: 'fallback' })
+  await mockFilterSelectionData(page)
   await page.goto('/documents/175/details')
   await page
     .getByRole('button', { name: 'Filter documents with these Tags' })

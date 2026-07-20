@@ -2,10 +2,6 @@ import { expect, test } from '@playwright/test'
 import path from 'node:path'
 import { mockFilterSelectionData } from '../mock-filter-selection-data'
 
-test.beforeEach(async ({ page }) => {
-  await mockFilterSelectionData(page)
-})
-
 const REQUESTS_HAR1 = path.join(__dirname, 'requests/api-dashboard1.har')
 const REQUESTS_HAR2 = path.join(__dirname, 'requests/api-dashboard2.har')
 const REQUESTS_HAR3 = path.join(__dirname, 'requests/api-dashboard3.har')
@@ -13,6 +9,7 @@ const REQUESTS_HAR4 = path.join(__dirname, 'requests/api-dashboard4.har')
 
 test('dashboard inbox link', async ({ page }) => {
   await page.routeFromHAR(REQUESTS_HAR1, { notFound: 'fallback' })
+  await mockFilterSelectionData(page)
   await page.goto('/dashboard')
   await page.getByRole('link', { name: 'Documents in inbox' }).click()
   await expect(page).toHaveURL(/tags__id__in=9/)
@@ -21,6 +18,7 @@ test('dashboard inbox link', async ({ page }) => {
 
 test('dashboard total documents link', async ({ page }) => {
   await page.routeFromHAR(REQUESTS_HAR2, { notFound: 'fallback' })
+  await mockFilterSelectionData(page)
   await page.goto('/dashboard')
   await page.getByRole('link').filter({ hasText: 'Total documents' }).click()
   await expect(page).toHaveURL(/documents/)
@@ -30,6 +28,7 @@ test('dashboard total documents link', async ({ page }) => {
 
 test('dashboard saved view show all', async ({ page }) => {
   await page.routeFromHAR(REQUESTS_HAR3, { notFound: 'fallback' })
+  await mockFilterSelectionData(page)
   await page.goto('/dashboard')
   await page
     .locator('pngx-widget-frame')
@@ -43,6 +42,7 @@ test('dashboard saved view show all', async ({ page }) => {
 
 test('dashboard saved view document links', async ({ page }) => {
   await page.routeFromHAR(REQUESTS_HAR4, { notFound: 'fallback' })
+  await mockFilterSelectionData(page)
   await page.goto('/dashboard')
   await page
     .locator('pngx-widget-frame')
@@ -56,6 +56,7 @@ test('dashboard saved view document links', async ({ page }) => {
 
 test('test slim sidebar', async ({ page }) => {
   await page.routeFromHAR(REQUESTS_HAR1, { notFound: 'fallback' })
+  await mockFilterSelectionData(page)
   await page.goto('/dashboard')
   await page.locator('.sidebar-slim-toggler').click()
   await expect(
