@@ -12771,7 +12771,7 @@
         <source>Successfully completed one-time migratration of settings to the database!</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/services/settings.service.ts</context>
-          <context context-type="linenumber">636</context>
+          <context context-type="linenumber">635</context>
         </context-group>
         <target state="translated">Sikeresen befejeződött a beállítások egyszeri migrálása az adatbázisba!</target>
       </trans-unit>
@@ -12779,7 +12779,7 @@
         <source>Unable to migrate settings to the database, please try saving manually.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/services/settings.service.ts</context>
-          <context context-type="linenumber">637</context>
+          <context context-type="linenumber">636</context>
         </context-group>
         <target state="translated">Nem sikerült a beállításokat az adatbázisba migrálni, kérjük, próbálja meg manuálisan menteni.</target>
       </trans-unit>
@@ -12787,7 +12787,7 @@
         <source>You can restart the tour from the settings page.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/services/settings.service.ts</context>
-          <context context-type="linenumber">709</context>
+          <context context-type="linenumber">708</context>
         </context-group>
         <target state="translated">A túrát a beállítások oldalról indíthatja újra.</target>
       </trans-unit>

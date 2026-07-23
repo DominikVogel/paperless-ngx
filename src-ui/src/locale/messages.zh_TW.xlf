@@ -12771,7 +12771,7 @@
         <source>Successfully completed one-time migratration of settings to the database!</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/services/settings.service.ts</context>
-          <context context-type="linenumber">636</context>
+          <context context-type="linenumber">635</context>
         </context-group>
         <target state="translated">設定值已成功移轉到資料庫！</target>
       </trans-unit>
@@ -12779,7 +12779,7 @@
         <source>Unable to migrate settings to the database, please try saving manually.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/services/settings.service.ts</context>
-          <context context-type="linenumber">637</context>
+          <context context-type="linenumber">636</context>
         </context-group>
         <target state="translated">無法將設定遷移至資料庫，請嘗試手動儲存。</target>
       </trans-unit>
@@ -12787,7 +12787,7 @@
         <source>You can restart the tour from the settings page.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/services/settings.service.ts</context>
-          <context context-type="linenumber">709</context>
+          <context context-type="linenumber">708</context>
         </context-group>
         <target state="translated">可以從設定頁面重新開始導覽。</target>
       </trans-unit>

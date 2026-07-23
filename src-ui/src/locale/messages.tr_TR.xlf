@@ -12772,7 +12772,7 @@ tüm <x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em&gt;"/> krite
         <source>Successfully completed one-time migratration of settings to the database!</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/services/settings.service.ts</context>
-          <context context-type="linenumber">636</context>
+          <context context-type="linenumber">635</context>
         </context-group>
         <target state="translated">Ayarların veritabanına tek seferlik taşıma işlemi başarıyla tamamlandı!</target>
       </trans-unit>
@@ -12780,7 +12780,7 @@ tüm <x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em&gt;"/> krite
         <source>Unable to migrate settings to the database, please try saving manually.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/services/settings.service.ts</context>
-          <context context-type="linenumber">637</context>
+          <context context-type="linenumber">636</context>
         </context-group>
         <target state="translated">Ayarları veritabanına taşıyamıyoruz, lütfen manuel olarak kaydetmeyi deneyin.</target>
       </trans-unit>
@@ -12788,7 +12788,7 @@ tüm <x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em&gt;"/> krite
         <source>You can restart the tour from the settings page.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/services/settings.service.ts</context>
-          <context context-type="linenumber">709</context>
+          <context context-type="linenumber">708</context>
         </context-group>
         <target state="translated">Ayarlar sayfasından turu yeniden başlatabilirsiniz.</target>
       </trans-unit>

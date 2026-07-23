@@ -12771,7 +12771,7 @@
         <source>Successfully completed one-time migratration of settings to the database!</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/services/settings.service.ts</context>
-          <context context-type="linenumber">636</context>
+          <context context-type="linenumber">635</context>
         </context-group>
         <target state="translated">데이터베이스에 대한 설정의 일회성 마이그레이션을 성공적으로 완료했습니다!</target>
       </trans-unit>
@@ -12779,7 +12779,7 @@
         <source>Unable to migrate settings to the database, please try saving manually.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/services/settings.service.ts</context>
-          <context context-type="linenumber">637</context>
+          <context context-type="linenumber">636</context>
         </context-group>
         <target state="translated">설정을 데이터베이스로 마이그레이션할 수 없는 경우 수동으로 저장해 보세요.</target>
       </trans-unit>
@@ -12787,7 +12787,7 @@
         <source>You can restart the tour from the settings page.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/services/settings.service.ts</context>
-          <context context-type="linenumber">709</context>
+          <context context-type="linenumber">708</context>
         </context-group>
         <target state="translated">나중에 설정 페이지에서 다시 둘러보기를 할 수 있습니다.</target>
       </trans-unit>

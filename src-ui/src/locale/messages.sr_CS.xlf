@@ -12772,7 +12772,7 @@
         <source>Successfully completed one-time migratration of settings to the database!</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/services/settings.service.ts</context>
-          <context context-type="linenumber">636</context>
+          <context context-type="linenumber">635</context>
         </context-group>
         <target state="translated">Uspešno završena jednokratna migracija podešavanja u bazu podataka!</target>
       </trans-unit>
@@ -12780,7 +12780,7 @@
         <source>Unable to migrate settings to the database, please try saving manually.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/services/settings.service.ts</context>
-          <context context-type="linenumber">637</context>
+          <context context-type="linenumber">636</context>
         </context-group>
         <target state="translated">Nije moguće preneti podešavanja u bazu podataka, pokušajte da ih sačuvate ručno.</target>
       </trans-unit>
@@ -12788,7 +12788,7 @@
         <source>You can restart the tour from the settings page.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/services/settings.service.ts</context>
-          <context context-type="linenumber">709</context>
+          <context context-type="linenumber">708</context>
         </context-group>
         <target state="translated">Možete ponovo da pokrenete obilazak sa stranice sa podešavanjima.</target>
       </trans-unit>
